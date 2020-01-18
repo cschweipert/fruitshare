@@ -29,6 +29,10 @@ const addressesSchema = {
 
 const Address = mongoose.model("Address", addressesSchema);
 
+app.get("/", function(req, res) {
+  res.sendFile(__dirname + "/index.html");
+});
+
 app.listen(3000, function() {
   console.log("Server started on port 3000.");
 });
