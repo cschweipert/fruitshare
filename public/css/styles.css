@@ -45,7 +45,7 @@ input[type=text], select {
   margin-left: 10px;
   margin-bottom: 10px;
   /* display: inline-block; */
-  border: 1px solid #f0134d;
+  border: 0.5px solid #fff;
   border-radius: 4px;
   box-shadow: 5px 5px 15px -5px rgba(0, 0, 0, 0.3);
   /* box-sizing: border-box; */
