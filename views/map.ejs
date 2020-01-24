@@ -16,30 +16,133 @@
     }
   </style>
   <link rel="stylesheet" href="https://js.arcgis.com/4.14/esri/themes/light/main.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <link href="https://fonts.googleapis.com/css?family=Dosis|Quicksand|Fredoka+One|Paytone+One&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+
   <script src="https://js.arcgis.com/4.14/"></script>
 
   <script>
     require([
-      "esri/Map",
-      "esri/views/MapView"
-    ], function(Map, MapView) {
+    "esri/Map",
+    "esri/views/MapView",
+    "esri/layers/FeatureLayer",
+    "esri/Graphic",
+    "esri/geometry/Multipoint",
+    "esri/PopupTemplate",
+    "esri/popup/FieldInfo",
+    "esri/layers/support/Field"
+  ], function(Map, MapView, FeatureLayer, Graphic, Multipoint, PopupTemplate, FieldInfo, Field) {
 
       var map = new Map({
-        basemap: "topo-vector"
+        basemap: "dark-gray-vector"
       });
 
       var view = new MapView({
         container: "viewDiv",
         map: map,
-        center: [-118.80500, 34.02700], // longitude, latitude
-        zoom: 13
+        center: [-107.974656, 37.30502700000001], // longitude, latitude
+        zoom: 10
       });
+
+      var simpleMarkerSymbol = {
+          type: "simple-marker",
+          color: [226, 119, 40], // orange
+          outline: {
+            color: [255, 255, 255], // white
+            width: 1
+          }
+        };
+
+        var myArray = <%- JSON.stringify(ejsarray) %>
+
+        var features = [];
+
+        for (var i = 0; i < myArray.length; i++) {
+          var arr = {
+            geometry: {
+              type: "point",
+              x: myArray[i].longitude,
+              y: myArray[i].latitude
+            },
+            attributes: {
+              ObjectID: myArray[i]._id,
+              Fruit: myArray[i].fruit,
+              Street: myArray[i].street,
+              City: myArray[i].city,
+              Zip: myArray[i].zip
+            }
+          };
+          features.push(arr);
+        }
+        console.log(features);
+
+        // define each field's schema
+        const fields = [
+          new Field({
+            name: "ObjectID",
+            alias: "ObjectID",
+            type: "oid"
+          }), new Field({
+            name: "FRUIT",
+            alias: "Title",
+            type: "string"
+          }), new Field({
+            name: "STREET",
+            alias: "address",
+            type: "string"
+          }), new Field({
+            name: "CITY",
+            alias: "address",
+            type: "string"
+          }), new Field({
+            name: "ZIP",
+            alias: "address",
+            type: "integer"
+          })
+        ];
+
+        var popupFruit = {
+          "title": "Fruit: {Fruit} ",
+          "content": "<b>Street:</b> {Street}<br><b>City:</b> {City}"
+        };
+
+        const layer = new FeatureLayer({
+          objectIdField: "ObjectID",
+          geometryType: "point",
+          spatialReference: {
+            wkid: 4326
+          },
+          source: features,
+          fields: fields,
+          outFields: ["Fruit", "STREET", "CITY"],
+          popupTemplate: popupFruit,
+          renderer: { // overrides the layer's default renderer
+            type: "simple",
+            symbol: simpleMarkerSymbol
+          } //uvRenderer // UniqueValueRenderer based on `type` attribute
+        });
+        map.add(layer);
     });
   </script>
 </head>
 
 <body>
+  <div class="home">
+    <h1>Got Fruit?</h1>
+    <div class="box">
+      <form class="fruit" action="/" method="post" onsubmit="this.submit(); this.reset(); return false;">
+        <input class="userinput" type="text" name="fruit" placeholder="Kind of Fruit" value="">
+        <input class="userinput" type="text" name="street" placeholder="Street" value="">
+        <input class="userinput" type="text" name="city" placeholder="City" value="">
+        <input class="userinput" type="text" name="zip" placeholder="Zip" value="">
+        <input class="button" type="submit" name="" value="Submit">
+      </form>
+    </div>
+  </div>
+
   <div id="viewDiv"></div>
 </body>
+
 
 </html>
