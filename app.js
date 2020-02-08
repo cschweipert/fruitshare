@@ -59,6 +59,8 @@ app.post("/", function(req, res) {
   request(url + yourAddress + parameters, function(error, response, body) {
     //turns the JSON into a JS object
     let data = JSON.parse(body);
+    console.log(data);
+
     const longitude = data.candidates[0].location.x;
     const latitude = data.candidates[0].location.y;
     console.log(longitude);
@@ -69,17 +71,26 @@ app.post("/", function(req, res) {
       street: street,
       zip: zip,
       city: city,
-      state: state,
       latitude: latitude,
       longitude: longitude
     });
-    address.save();
+
     console.log(address);
 
-    res.render('map', {
-      ejslon: longitude,
-      ejslat: latitude,
+    // address.save();
+
+    address.save(function(err) {
+      if (!err) {
+        res.send("Successfully saved a new address.");
+      } else {
+        res.send(err);
+      }
     });
+    
+    // res.render('map', {
+    //   ejslon: longitude,
+    //   ejslat: latitude,
+    // });
   });
   res.redirect("/");
 });
